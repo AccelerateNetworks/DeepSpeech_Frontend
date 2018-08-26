@@ -1,5 +1,6 @@
 import os
 import ffmpeg
+import uuid
 from flask import Flask, flash, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -27,12 +28,10 @@ def upload_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            stream = ffmpeg.input(file)
-            stream = ffmpeg.output(stream, file.filename, format='s16le', acodec='pcm_s16le', ac=1, ar='16k')
-            stream = ffmpeg.overwrite_output(stream)
-            ffmpeg.run(stream)
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            fileLocation = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(fileLocation)
+            convertedFile = normalize_file(fileLocation)
             return redirect(url_for('transcribe',
                                     filename=filename))
     return '''
@@ -52,8 +51,9 @@ def transcribe(filename):
 
 # Use ffmpeg to convert our file to WAV @ 16k
 def normalize_file(file):
+    filename = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + ".wav")
     stream = ffmpeg.input(file)
-    stream = ffmpeg.output('-', format='s16le', acodec='pcm_s16le', ac=1, ar='16k')
-    stream = ffmpeg.output(stream, file)
+    stream = ffmpeg.output(stream, filename, format='s16le', acodec='pcm_s16le', ac=1, ar='16k')
+    # stream = ffmpeg.overwrite_output(stream)
     ffmpeg.run(stream)
-    return file
+    return filename
