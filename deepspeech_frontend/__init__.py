@@ -32,8 +32,9 @@ def upload_file():
             fileLocation = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(fileLocation)
             convertedFile = normalize_file(fileLocation)
+            os.remove(fileLocation)
             return redirect(url_for('transcribe',
-                                    filename=filename))
+                                    filename=convertedFile))
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -51,9 +52,11 @@ def transcribe(filename):
 
 # Use ffmpeg to convert our file to WAV @ 16k
 def normalize_file(file):
-    filename = os.path.join(app.config['UPLOAD_FOLDER'], str(uuid.uuid4()) + ".wav")
+    filename = str(uuid.uuid4()) + ".wav"
+    fileLocation = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     stream = ffmpeg.input(file)
-    stream = ffmpeg.output(stream, filename, format='s16le', acodec='pcm_s16le', ac=1, ar='16k')
+    stream = ffmpeg.output(stream, fileLocation, format='s16le', acodec='pcm_s16le', ac=1, ar='16k')
     # stream = ffmpeg.overwrite_output(stream)
     ffmpeg.run(stream)
+    print(filename)
     return filename
