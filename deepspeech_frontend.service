@@ -1,0 +1,15 @@
+
+[Unit]
+Description=DeepSpeech Frontend
+Wants=network.target
+After=network.target
+
+[Service]
+SyslogIdentifier=deepspeech_frontend
+User=nobody
+Group=nogroup
+ExecStart=/usr/local/bin/gunicorn -b 0.0.0.0 deepspeech_frontend:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
