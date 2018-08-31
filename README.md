@@ -3,6 +3,11 @@
 A simple flask app that transcribes files served to it via HTTP POST, and redirects the user to the text we were able to get from their audio.
 
 ## Installation
+First, lets get our base dependencies, for Debian that would look like this:
+
+```
+apt install python3-pip git ffmpeg
+```
 Creating a virtual environment is recommended:
 
 ```
@@ -10,15 +15,10 @@ virtualenv -p python3 env
 . env/bin/activate
 ```
 
-Followed by installing the dependecies:
+Followed by installing the python packages needed:
 
 ```
 pip install ffmpeg-python flask deepspeech
-```
-
-To install the latest version of this app, you can use pip:
-
-```
 pip install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend
 ```
 
@@ -28,6 +28,13 @@ wget https://github.com/mozilla/DeepSpeech/releases/download/v0.1.1/deepspeech-0
 tar -xvzf deepspeech-0.1.1-models.tar.gz
 ```
 
+Now, lets take this for a test spin!
+```
+python run.py
+```
+Navigate to http://localhost:5000/ in a web browser and upload your audio file. Once transcribed, you'll be redirected to the transcription.
+
+## Production Use
 Next, you'll probably want to install something to serve it with, rather than the flask built in web server.
 `gunicorn` is what I use:
 
@@ -60,6 +67,7 @@ Thanks to the following people and resources, this project exists:
 * FFmpeg-Python - https://github.com/kkroening/ffmpeg-python/
 
 ## Things to improve
+* Queue for recordings to be processed.
 * Add GPU support
 * Find or make a voice model that works better for handling short voicemails (the current voice model seems to be using phonics)
 * Perhaps pass the output through a spellchecker, and fix simple cases like capitalizing I and the first letter of the string generated.
