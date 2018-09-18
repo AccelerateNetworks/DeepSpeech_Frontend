@@ -1,7 +1,7 @@
 import os
 import ffmpeg
 import uuid
-from deepspeech.model import Model
+from deepspeech import Model
 import scipy.io.wavfile as wav
 from flask import Flask, flash, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename

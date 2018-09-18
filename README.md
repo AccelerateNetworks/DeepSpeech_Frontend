@@ -24,8 +24,7 @@ pip install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget https://github.com/mozilla/DeepSpeech/releases/download/v0.1.1/deepspeech-0.1.1-models.tar.gz
-tar -xvzf deepspeech-0.1.1-models.tar.gz
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.2.0/deepspeech-0.2.0-models.tar.gz | tar xvfz -
 ```
 
 Now, lets take this for a test spin!
