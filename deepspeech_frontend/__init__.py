@@ -3,11 +3,8 @@ import ffmpeg
 import uuid
 from deepspeech import Model
 import scipy.io.wavfile as wav
-from flask import Flask, flash, request, redirect, url_for, send_from_directory
+from flask import Flask, flash, request, redirect, url_for, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
-
-UPLOAD_FOLDER = '/tmp'
-ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 # These constants control the beam search decoder
 
@@ -30,6 +27,9 @@ N_FEATURES = 26
 
 # Size of the context window used for producing timesteps in the input vector
 N_CONTEXT = 9
+
+UPLOAD_FOLDER = '/tmp'
+ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -72,8 +72,8 @@ def upload_file():
     </form>
     <br>
     <p>We accept wav, mp3 and flac, after uploading you'll be redirected to a transcribed version of your file.</p>
-    <p>No state is retained by this application, we use Mozilla's DeepSpeech library with their default models and settings,
-    To contribute, come check out our code here! We're also looking for suggestions as how to improve accuracy.</p></center>
+    <p>No files or text is retained after a file is processed, we use Mozilla's DeepSpeech library with their default models and settings,
+    To contribute, come <a href="https://git.callpipe.com/fusionpbx/deepspeech_frontend/">check out our code</a>! We're also looking for suggestions as how to improve accuracy.</p></center>
     '''
 
 @app.route('/results/<filename>')
@@ -89,6 +89,29 @@ def normalize_file(file):
     fileLocation = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     stream = ffmpeg.input(file)
     stream = ffmpeg.output(stream, fileLocation, acodec='pcm_s16le', ac=1, ar='16k')
-    # stream = ffmpeg.overwrite_output(stream)
     ffmpeg.run(stream)
     return filename
+
+@app.route('/api/v1/<key>', methods=['POST'])
+def api_transcribe(key):
+    # check if the post request has the file part
+    if 'file' not in request.files:
+        return make_response(jsonify({'error': 'No file part'}), 400)
+    file = request.files['file']
+    # if the request has a blank filename
+    if file.filename == '':
+        return make_response(jsonify({'error': 'No file in file parameter'}), 400)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        fileLocation = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(fileLocation)
+        convertedFile = normalize_file(fileLocation)
+        # stream = ffmpeg.overwrite_output(stream)
+        os.remove(fileLocation)
+        return jsonify({'message' : transcribe(filename=convertedFile)})
+    return make_response(jsonify({'error': 'Something went wrong :c'}), 400)
+
+# Return a JSON error rather than a HTTP 404
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)

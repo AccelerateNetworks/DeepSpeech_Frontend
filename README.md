@@ -79,8 +79,7 @@ Thanks to the following people and resources, this project exists:
 
 ## Things to improve
 * Queue for recordings to be processed
-* Add JSON endpoint, and endpoints that act like standard proprietary HTTP voice endpoints (making this a drop in replacement)
+* Add endpoints that act like standard proprietary HTTP voice endpoints (making this a drop in replacement)
 * Add GPU support
 * Try using a [punctuation adding script](https://github.com/alpoktem/punkProse)
-* Find or make a voice model that works better for handling short voicemails (the current voice model seems to be using phonics) - This may be related to the [learning model not being loaded](https://discourse.mozilla.org/t/different-outputs-when-using-deepspeech-as-python-library/31004)?
 * Perhaps pass the output through a spellchecker, and fix simple cases like capitalizing I and the first letter of the string generated.
