@@ -9,9 +9,36 @@ from werkzeug.utils import secure_filename
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
+# These constants control the beam search decoder
+
+# Beam width used in the CTC decoder when building candidate transcriptions
+BEAM_WIDTH = 500
+
+# The alpha hyperparameter of the CTC decoder. Language Model weight
+LM_WEIGHT = 1.75
+
+# The beta hyperparameter of the CTC decoder. Word insertion weight (penalty)
+WORD_COUNT_WEIGHT = 1.00
+
+# Valid word insertion weight. This is used to lessen the word insertion penalty
+# when the inserted word is part of the vocabulary
+VALID_WORD_COUNT_WEIGHT = 1.00
+
+# These constants are tied to the shape of the graph used (changing them changes
+# the geometry of the first layer), so make sure you use the same constants that
+# were used during training
+
+# Number of MFCC features to use
+N_FEATURES = 26
+
+# Size of the context window used for producing timesteps in the input vector
+N_CONTEXT = 9
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ds = Model('models/output_graph.pb', 26, 9, 'models/alphabet.txt', 500)
+ds = Model('models/output_graph.pb', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
+ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie', LM_WEIGHT,
+                       VALID_WORD_COUNT_WEIGHT)
 
 def allowed_file(filename):
     return '.' in filename and \
