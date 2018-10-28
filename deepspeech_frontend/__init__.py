@@ -36,6 +36,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ds = Model('models/output_graph.pb', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
 ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie', LM_WEIGHT,
                        VALID_WORD_COUNT_WEIGHT)
+api_keys = []
+api_keyfile = 'api_keys.txt'
+if os.path.isfile(api_keyfile):
+    load_keys(api_keyfile)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -92,7 +96,7 @@ def normalize_file(file):
     ffmpeg.run(stream)
     return filename
 
-@app.route('/api/v1/<key>', methods=['POST'])
+@app.route('/api/v1/process?token=<key>', methods=['POST'])
 def api_transcribe(key):
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -115,3 +119,9 @@ def api_transcribe(key):
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+def load_keys(keylist):
+    with open(keylist) as f:
+        for line in f:
+            credential = line.split(', ')
+            api_keys.append(credential[0])
