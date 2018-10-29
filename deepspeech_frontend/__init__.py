@@ -1,6 +1,8 @@
 import os
 import ffmpeg
 import uuid
+import webrtcvad
+from .chunker import read_wave, write_wave, frame_generator, vad_collector
 from deepspeech import Model
 import scipy.io.wavfile as wav
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, make_response, jsonify
@@ -27,6 +29,9 @@ N_FEATURES = 26
 
 # Size of the context window used for producing timesteps in the input vector
 N_CONTEXT = 9
+
+# How aggressive to be when splitting audio files into chunks
+aggressiveness = 1
 
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
@@ -82,8 +87,22 @@ def upload_file():
 
 @app.route('/results/<filename>')
 def transcribe(filename):
-    fs, audio = wav.read(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    processed_data = ds.stt(audio, fs)
+    processed_data = ""
+    audio, sample_rate = read_wave(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    vad = webrtcvad.Vad(0)
+    frames = frame_generator(20, audio, sample_rate)
+    frames = list(frames)
+    # Change the frame generator line above and the frame size (20 by default)/window size (40 by default) when dealing with non-stop talkers!
+    segments = vad_collector(sample_rate, 20, 40, vad, frames)
+    for i, segment in enumerate(segments):
+        path = 'chunk-%002d.wav' % (i,)
+        # print(' Writing %s' % (path,))
+        write_wave(path, segment, sample_rate)
+        fs, audio = wav.read(path)
+        processed_data += ds.stt(audio, fs)
+        processed_data += " "
+        # print(processed_data)
+        os.remove(path)
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     return processed_data
 
