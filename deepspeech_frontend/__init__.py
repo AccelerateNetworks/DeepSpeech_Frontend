@@ -33,7 +33,7 @@ ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ds = Model('models/output_graph.pb', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
+ds = Model('models/output_graph.pbmm', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
 ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie', LM_WEIGHT,
                        VALID_WORD_COUNT_WEIGHT)
 api_keys = []

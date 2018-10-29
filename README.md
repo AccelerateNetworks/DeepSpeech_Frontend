@@ -3,7 +3,7 @@
 A simple flask app that transcribes files served to it via HTTP POST, and redirects the user to the text we were able to get from their audio.
 
 ## Installation
-First, evaluate if your machine has sufficient resources lets get our base dependencies (see Optimizations). Next, install the dependencies, for Debian that would look like this:
+Install the dependencies, for Debian that would look like this:
 
 ```
 apt install python3-pip git ffmpeg
@@ -24,7 +24,7 @@ pip install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.2.0/deepspeech-0.2.0-models.tar.gz | tar xvfz -
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.3.0/deepspeech-0.3.0-models.tar.gz | tar xvfz -
 ```
 
 Now, lets take this for a test spin!
@@ -55,16 +55,9 @@ to your liking.
 Configuration is done in the beginning of `deepspeech_frontend/__init__.py`. You can modify the directory where uploaded and transcoded files are temporarily stored, change the language model and weights used and more.
 
 ## Optimizations
-Based on our testing, a box with 3GB of Ram is the bare minimum needed to run DeepSpeech unless you convert to an [mmap-able model](https://github.com/mozilla/DeepSpeech#making-a-mmap-able-model-for-inference). To convert your model, start from inside the deepspeech_frontend directory (the root of the project, with models as a subfolder) and run the commands below.
+Based on our testing, a box with 1GB of Ram is the bare minimum needed to run DeepSpeech, though more is recommended. If you have spare hardware resources, edit the configuration in `deepspeech_frontend/__init__.py` on line 36, changing `models/output_graph.pbmm` to `models/output_graph.pb` to reference the normal voice model rather than the mmap-able model. This should reduce how much your system swaps or hits disk (as the model will be loaded into ram), but note that it seems to eat ram for breakfast!
 
-```
-wget https://index.taskcluster.net/v1/task/project.deepspeech.tensorflow.pip.r1.6.cpu/artifacts/public/convert_graphdef_memmapped_format && chmod +x convert_graphdef_memmapped_format
-convert_graphdef_memmapped_format --in_graph=models/output_graph.pb --out_graph=models/output_graph.pbmm
-```
-
-Following this, edit the configuration in `deepspeech_frontend/__init__.py` on line 36, changing `models/output_graph.pb` to `models/output_graph.pbmm` to reference the new mmap-able model.
-
-When using an mmap-able model, we saw memory usage reduced from 1.79GB to 1.3GB, and according to [lissyx in this thread](https://discourse.mozilla.org/t/error-while-running-sample-model-on-raspbian-gnu-linux-9-4-stretch/28599/4) it should make DeepSpeech able to run on Single Board Computers like the OrangePi PC or Raspberry Pi.
+When using an mmap-able model, we saw memory usage reduced significantly, and according to [lissyx in this thread](https://discourse.mozilla.org/t/error-while-running-sample-model-on-raspbian-gnu-linux-9-4-stretch/28599/4) it should make DeepSpeech able to run on Single Board Computers like the OrangePi PC or Raspberry Pi.
 
 ## References Used
 Thanks to the following people and resources, this project exists:
@@ -78,6 +71,7 @@ Thanks to the following people and resources, this project exists:
 * FFmpeg-Python - https://github.com/kkroening/ffmpeg-python/
 
 ## Things to improve
+* Ram usage seems to increase drastically on longer files, slice audio files into smaller parts.
 * Queue for recordings to be processed
 * Add endpoints that act like standard proprietary HTTP voice endpoints (making this a drop in replacement)
 * Add GPU support
