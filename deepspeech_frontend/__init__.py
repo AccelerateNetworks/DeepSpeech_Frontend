@@ -115,8 +115,9 @@ def normalize_file(file):
     ffmpeg.run(stream)
     return filename
 
-@app.route('/api/v1/process?token=<key>', methods=['POST'])
-def api_transcribe(key):
+@app.route('/api/v1/process', methods=['POST'])
+def api_transcribe():
+    print(request.headers)
     # check if the post request has the file part
     if 'file' not in request.files:
         return make_response(jsonify({'error': 'No file part'}), 400)
