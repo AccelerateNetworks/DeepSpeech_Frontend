@@ -118,6 +118,8 @@ def normalize_file(file):
 @app.route('/api/v1/process', methods=['POST'])
 def api_transcribe():
     print(request.headers)
+    if(len(api_keys) != 0)
+        #get the request headers and check the keys
     # check if the post request has the file part
     if 'file' not in request.files:
         return make_response(jsonify({'error': 'No file part'}), 400)

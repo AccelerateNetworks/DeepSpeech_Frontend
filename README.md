@@ -7,6 +7,8 @@ Install the dependencies, for Debian that would look like this:
 
 ```
 apt install python3-pip git ffmpeg
+git clone https://git.callpipe.com/fusionpbx/deepspeech_frontend
+cd deepspeech_frontend
 ```
 Creating a virtual environment is recommended:
 
@@ -19,7 +21,6 @@ Followed by installing the python packages needed:
 
 ```
 pip install ffmpeg-python flask deepspeech webrtcvad
-pip install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend
 ```
 
 At this point, Mozilla's DeepSpeech needs a language model:
