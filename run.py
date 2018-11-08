@@ -2,7 +2,7 @@
 import deepspeech_frontend
 import os.path
 import requests
-import tarfile
+# import tarfile
 
 if os.path.isfile("models/output_graph.pb") or os.path.isfile("models/alphabet.txt"):
     print("Starting the DeepSpeech Frontend")

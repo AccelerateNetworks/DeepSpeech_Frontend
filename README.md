@@ -6,21 +6,21 @@ A simple flask app that transcribes files served to it via HTTP POST, and redire
 Install the dependencies, for Debian that would look like this:
 
 ```
-apt install python3-pip git ffmpeg
+apt update && apt install python3-pip git ffmpeg python3-virtualenv
 git clone https://git.callpipe.com/fusionpbx/deepspeech_frontend
 cd deepspeech_frontend
 ```
 Creating a virtual environment is recommended:
 
 ```
-virtualenv -p python3 env
+python3 /usr/lib/python3/dist-packages/virtualenv.py -p python3 env
 . env/bin/activate
 ```
 
 Followed by installing the python packages needed:
 
 ```
-pip install ffmpeg-python flask deepspeech webrtcvad
+pip install ffmpeg-python flask deepspeech webrtcvad uuid requests scipy
 ```
 
 At this point, Mozilla's DeepSpeech needs a language model:
