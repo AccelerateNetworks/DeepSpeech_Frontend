@@ -43,6 +43,9 @@ ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie',
                        VALID_WORD_COUNT_WEIGHT)
 api_keys = []
 api_keyfile = 'api_keys.txt'
+transcription_in_progress = False
+print(transcription_in_progress)
+
 
 def load_keys(keylist):
     with open(keylist) as f:
@@ -94,6 +97,10 @@ def upload_file():
 
 @app.route('/results/<filename>')
 def transcribe(filename):
+    if(transcription_in_progress):
+        time.sleep(5)
+        transcribe(filename)
+    transcription_in_progress = True
     processed_data = ""
     audio, sample_rate = read_wave(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     vad = webrtcvad.Vad(0)
@@ -111,6 +118,7 @@ def transcribe(filename):
         # print(processed_data)
         os.remove(path)
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    transcription_in_progress = False
     return processed_data
 
 # Use ffmpeg to convert our file to WAV @ 16k
@@ -151,6 +159,7 @@ def api_transcribe():
         convertedFile = normalize_file(fileLocation)
         # stream = ffmpeg.overwrite_output(stream)
         os.remove(fileLocation)
+
         return jsonify({'message' : transcribe(filename=convertedFile)})
     return make_response(jsonify({'error': 'Something went wrong :c'}), 400)
 
