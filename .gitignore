@@ -1,6 +1,7 @@
 deepspeech-0.1.1-models.tar.gz
 output.wav
 models/
+api_keys.txt
 
 #####=== Python ===#####
 

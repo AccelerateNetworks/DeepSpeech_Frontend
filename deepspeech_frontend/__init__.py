@@ -43,6 +43,13 @@ ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie',
                        VALID_WORD_COUNT_WEIGHT)
 api_keys = []
 api_keyfile = 'api_keys.txt'
+
+def load_keys(keylist):
+    with open(keylist) as f:
+        for line in f:
+            credential = line.split(', ')
+            api_keys.append(credential[0])
+
 if os.path.isfile(api_keyfile):
     load_keys(api_keyfile)
 
@@ -117,9 +124,19 @@ def normalize_file(file):
 
 @app.route('/api/v1/process', methods=['POST'])
 def api_transcribe():
-    print(request.headers)
-    #if(len(api_keys) != 0)
-        #get the request headers and check the keys
+    # check and see if API keys are set
+    if(len(api_keys) > 0):
+        # get the request headers and check the keys
+        if "Authorization" in request.headers:
+            key = request.headers["Authorization"]
+            if(len(key) > 7):
+                if key[7:] not in api_keys:
+                    return make_response(jsonify({'error': 'Your API key is invalid :c'}), 400)
+            else:
+                return make_response(jsonify({'error': 'Your API key was empty :c'}), 400)
+        else:
+            return make_response(jsonify({'error': 'We need an API key to process your request :c'}), 400)
+
     # check if the post request has the file part
     if 'file' not in request.files:
         return make_response(jsonify({'error': 'No file part'}), 400)
@@ -141,9 +158,3 @@ def api_transcribe():
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
-
-def load_keys(keylist):
-    with open(keylist) as f:
-        for line in f:
-            credential = line.split(', ')
-            api_keys.append(credential[0])
