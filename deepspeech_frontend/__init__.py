@@ -2,6 +2,7 @@ import os
 import ffmpeg
 import uuid
 import webrtcvad
+import time
 from .chunker import read_wave, write_wave, frame_generator, vad_collector
 from deepspeech import Model
 import scipy.io.wavfile as wav
@@ -97,9 +98,12 @@ def upload_file():
 
 @app.route('/results/<filename>')
 def transcribe(filename):
+    global transcription_in_progress
     if(transcription_in_progress):
+        print("Oh no! Another transcription was in progress, waiting 5 seconds...")
         time.sleep(5)
         transcribe(filename)
+    print("Starting transcription...")
     transcription_in_progress = True
     processed_data = ""
     audio, sample_rate = read_wave(os.path.join(app.config['UPLOAD_FOLDER'], filename))
