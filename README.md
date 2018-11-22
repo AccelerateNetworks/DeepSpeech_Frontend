@@ -53,12 +53,14 @@ You may want this running as a daemon and probably managed by your init system, 
 to your liking.
 
 ## Configuration
-Configuration is done in the beginning of `deepspeech_frontend/__init__.py`. You can modify the directory where uploaded and transcoded files are temporarily stored, change the language model and weights used and more.
+Configuration is done in the beginning of `deepspeech_frontend/__init__.py`. You can modify the directory where uploaded and not yet fully processed files are temporarily stored, change the language model and weights used and more.
+
+Adding an api_keys.txt to the base directory will restrict the API to authenticated users with valid API keys. The file format is simple with `<API_Key>, anything you want` on each line. To use a key, the API expects to be accessed with something equivalent to `curl -X POST <server>/api/v1/process -H 'Authorization: Bearer <api_key>' -F file=@<your_audio_file>`.
 
 ## Optimizations
 Heavy, continuous talkers can cause the vad (which looks for pauses in speech) to fail, breaking chunking of large audio files into smaller files and causing DeepSpeech to attempt to transcribe larger files than it can handle. This results in a segfault by DeepSpeech when it maxes out your ram :P
 
-Based on our testing, a box with 1GB of Ram is the bare minimum needed to run DeepSpeech, though more is recommended. If you have spare hardware resources, edit the configuration in `deepspeech_frontend/__init__.py` on line 36, changing `models/output_graph.pbmm` to `models/output_graph.pb` to reference the normal voice model rather than the mmap-able model. This should reduce how much your system swaps or hits disk (as the model will be loaded into ram), but note that it seems to eat ram for breakfast!
+Based on our testing, a box with 3GB of Ram is the bare minimum needed to run DeepSpeech, though more is recommended. If you have spare hardware resources, edit the configuration in `deepspeech_frontend/__init__.py` on line 36, changing `models/output_graph.pbmm` to `models/output_graph.pb` to reference the normal voice model rather than the mmap-able model. This should reduce how much your system swaps or hits disk (as the model will be loaded into ram), but note that it seems to eat ram for breakfast!
 
 When using an mmap-able model (now the default), we saw memory usage reduced significantly, and according to [lissyx in this thread](https://discourse.mozilla.org/t/error-while-running-sample-model-on-raspbian-gnu-linux-9-4-stretch/28599/4) it should make DeepSpeech able to run on Single Board Computers like the OrangePi PC or Raspberry Pi.
 
@@ -79,5 +81,3 @@ Thanks to the following people and resources, this project exists:
 * Figure out why webrtcvad is dumping binary and time increments in the console output. Not useful for our usecase
 * Add endpoints that act like standard proprietary HTTP voice endpoints (making this a drop in replacement)
 * Add GPU support
-* Try using a [punctuation adding script](https://github.com/alpoktem/punkProse)
-* Perhaps pass the output through a spellchecker, and fix simple cases like capitalizing I and the first letter of the string generated.
