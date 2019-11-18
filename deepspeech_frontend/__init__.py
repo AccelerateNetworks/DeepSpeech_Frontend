@@ -1,9 +1,7 @@
 import os
 import ffmpeg
 import uuid
-import webrtcvad
 import time
-from .chunker import read_wave, write_wave, frame_generator, vad_collector
 from deepspeech import Model
 import scipy.io.wavfile as wav
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, make_response, jsonify
@@ -15,11 +13,11 @@ from werkzeug.utils import secure_filename
 BEAM_WIDTH = 500
 
 # The alpha hyperparameter of the CTC decoder. Language Model weight
-LM_WEIGHT = 1.50
+LM_WEIGHT = 0.75
 
 # Valid word insertion weight. This is used to lessen the word insertion penalty
 # when the inserted word is part of the vocabulary
-VALID_WORD_COUNT_WEIGHT = 2.10
+VALID_WORD_COUNT_WEIGHT = 1.85
 
 # These constants are tied to the shape of the graph used (changing them changes
 # the geometry of the first layer), so make sure you use the same constants that
@@ -31,15 +29,13 @@ N_FEATURES = 26
 # Size of the context window used for producing timesteps in the input vector
 N_CONTEXT = 9
 
-# How aggressive to be when splitting audio files into chunks
-aggressiveness = 1
 
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ds = Model('models/output_graph.pbmm', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
+ds = Model('models/output_graph.pb', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
 ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie', LM_WEIGHT,
                        VALID_WORD_COUNT_WEIGHT)
 api_keys = []
@@ -105,22 +101,8 @@ def transcribe(filename):
         transcribe(filename)
     print("Starting transcription...")
     transcription_in_progress = True
-    processed_data = ""
-    audio, sample_rate = read_wave(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    vad = webrtcvad.Vad(0)
-    frames = frame_generator(20, audio, sample_rate)
-    frames = list(frames)
-    # Change the frame generator line above and the frame size (20 by default)/window size (40 by default) when dealing with non-stop talkers!
-    segments = vad_collector(sample_rate, 20, 40, vad, frames)
-    for i, segment in enumerate(segments):
-        path = 'chunk-%002d.wav' % (i,)
-        # print(' Writing %s' % (path,))
-        write_wave(path, segment, sample_rate)
-        fs, audio = wav.read(path)
-        processed_data += ds.stt(audio, fs)
-        processed_data += " "
-        # print(processed_data)
-        os.remove(path)
+    fs, audio = wav.read(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    processed_data = ds.stt(audio, fs)
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     transcription_in_progress = False
     return processed_data

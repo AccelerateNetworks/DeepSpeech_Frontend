@@ -20,12 +20,12 @@ python3 /usr/lib/python3/dist-packages/virtualenv.py -p python3 env
 Followed by installing the python packages needed:
 
 ```
-pip install ffmpeg-python flask deepspeech webrtcvad uuid requests scipy
+pip install ffmpeg-python flask deepspeech uuid requests scipy
 ```
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.3.0/deepspeech-0.3.0-models.tar.gz | tar xvfz -
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.5.1/deepspeech-0.5.1-models.tar.gz | tar xvfz -
 ```
 
 Now, lets take this for a test spin!
@@ -78,6 +78,5 @@ Thanks to the following people and resources, this project exists:
 
 ## Things to improve
 * Queue for recordings to be processed
-* Figure out why webrtcvad is dumping binary and time increments in the console output. Not useful for our usecase
 * Add endpoints that act like standard proprietary HTTP voice endpoints (making this a drop in replacement)
 * Add GPU support
