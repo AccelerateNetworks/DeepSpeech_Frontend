@@ -12,22 +12,18 @@ from werkzeug.utils import secure_filename
 # Beam width used in the CTC decoder when building candidate transcriptions
 BEAM_WIDTH = 500
 
-# The alpha hyperparameter of the CTC decoder. Language Model weight
+# Alpha hyperparameter of the CTC decoder. Language Model weight (aka LM_Alpha)
 LM_WEIGHT = 0.75
 
 # Valid word insertion weight. This is used to lessen the word insertion penalty
-# when the inserted word is part of the vocabulary
+# when the inserted word is part of the vocabulary (aka LM_Beta)
 VALID_WORD_COUNT_WEIGHT = 1.85
 
 # These constants are tied to the shape of the graph used (changing them changes
 # the geometry of the first layer), so make sure you use the same constants that
 # were used during training
 
-# Number of MFCC features to use
-N_FEATURES = 26
 
-# Size of the context window used for producing timesteps in the input vector
-N_CONTEXT = 9
 
 
 UPLOAD_FOLDER = '/tmp'
@@ -35,8 +31,8 @@ ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ds = Model('models/output_graph.pb', N_FEATURES, N_CONTEXT, 'models/alphabet.txt', BEAM_WIDTH)
-ds.enableDecoderWithLM('models/alphabet.txt', 'models/lm.binary', 'models/trie', LM_WEIGHT,
+ds = Model('models/output_graph.pb', BEAM_WIDTH)
+ds.enableDecoderWithLM('models/lm.binary', 'models/trie', LM_WEIGHT,
                        VALID_WORD_COUNT_WEIGHT)
 api_keys = []
 api_keyfile = 'api_keys.txt'
@@ -102,7 +98,7 @@ def transcribe(filename):
     print("Starting transcription...")
     transcription_in_progress = True
     fs, audio = wav.read(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    processed_data = ds.stt(audio, fs)
+    processed_data = ds.stt(audio)
     os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     transcription_in_progress = False
     return processed_data

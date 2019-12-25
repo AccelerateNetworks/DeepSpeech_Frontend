@@ -25,7 +25,7 @@ pip install ffmpeg-python flask deepspeech uuid requests scipy
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.5.1/deepspeech-0.5.1-models.tar.gz | tar xvfz -
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.0/deepspeech-0.6.0-models.tar.gz | tar xvfz -
 ```
 
 Now, lets take this for a test spin!
