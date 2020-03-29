@@ -8,7 +8,7 @@ After=network.target
 SyslogIdentifier=deepspeech_frontend
 User=nobody
 Group=nogroup
-ExecStart=/usr/local/bin/gunicorn -b 0.0.0.0 deepspeech_frontend:app
+ExecStart=/usr/bin/gunicorn3 -b 0.0.0.0 deepspeech_frontend:app
 Restart=always
 
 [Install]

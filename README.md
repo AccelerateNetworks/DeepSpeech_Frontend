@@ -6,7 +6,7 @@ A simple flask app that transcribes files served to it via HTTP POST, and redire
 Install the dependencies, for Debian that would look like this:
 
 ```
-apt update && apt install python3-pip git ffmpeg python3-virtualenv
+apt update && apt install python3-pip git ffmpeg python3-virtualenv wget
 git clone https://git.callpipe.com/fusionpbx/deepspeech_frontend
 cd deepspeech_frontend
 ```
@@ -39,7 +39,8 @@ Next, you'll probably want to install something to serve it with, rather than th
 `gunicorn` is what I use:
 
 ```
-pip install gunicorn
+apt install gunicorn3 python3-pip git ffmpeg wget
+pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
 ```
 
 Finally, run gunicorn to start the server:

@@ -2,6 +2,7 @@ import os
 import ffmpeg
 import uuid
 import time
+import sys
 from deepspeech import Model
 import scipy.io.wavfile as wav
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, make_response, jsonify
@@ -39,6 +40,19 @@ api_keyfile = 'api_keys.txt'
 transcription_in_progress = False
 print(transcription_in_progress)
 
+if os.path.isfile("models/output_graph.pb"):
+    print("Starting the DeepSpeech Frontend")
+    deepspeech_frontend.app.run(debug=True, host="::")
+elif os.path.isfile("/var/lib/deepspeech/models/output_graph.pb"):
+    ds = Model('/var/lib/deepspeech/models/output_graph.pb', BEAM_WIDTH)
+    ds.enableDecoderWithLM('/var/lib/deepspeech/models/lm.binary', '/var/lib/deepspeech/models/trie', LM_WEIGHT,
+                       VALID_WORD_COUNT_WEIGHT)
+else:
+    Path("/var/lib/deepspeech/").mkdir(parents=True, exist_ok=True)
+    os.system("wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.0/deepspeech-0.6.0-models.tar.gz | tar xvfz /var/lib/deepspeech/")
+    ds = Model('/var/lib/deepspeech/models/output_graph.pb', BEAM_WIDTH)
+    ds.enableDecoderWithLM('/var/lib/deepspeech/models/lm.binary', '/var/lib/deepspeech/models/trie', LM_WEIGHT,
+                       VALID_WORD_COUNT_WEIGHT)
 
 def load_keys(keylist):
     with open(keylist) as f:
