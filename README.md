@@ -42,7 +42,7 @@ Next, you'll probably want to install something to serve it with, rather than th
 apt update && apt install gunicorn3 python3-pip git ffmpeg wget 
 mkdir /var/lib/deepspeech/ && cd /var/lib/deepspeech/
 wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz | tar xvfz -
-pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
+ln -s deepspeech-0.6.1-models models && pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
 ```
 
 Finally, run gunicorn to start the server:
