@@ -32,9 +32,6 @@ ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ds = Model('models/output_graph.pb', BEAM_WIDTH)
-ds.enableDecoderWithLM('models/lm.binary', 'models/trie', LM_WEIGHT,
-                       VALID_WORD_COUNT_WEIGHT)
 api_keys = []
 api_keyfile = 'api_keys.txt'
 transcription_in_progress = False
@@ -48,11 +45,8 @@ elif os.path.isfile("/var/lib/deepspeech/models/output_graph.pb"):
     ds.enableDecoderWithLM('/var/lib/deepspeech/models/lm.binary', '/var/lib/deepspeech/models/trie', LM_WEIGHT,
                        VALID_WORD_COUNT_WEIGHT)
 else:
-    Path("/var/lib/deepspeech/").mkdir(parents=True, exist_ok=True)
-    os.system("wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.0/deepspeech-0.6.0-models.tar.gz | tar xvfz /var/lib/deepspeech/")
-    ds = Model('/var/lib/deepspeech/models/output_graph.pb', BEAM_WIDTH)
-    ds.enableDecoderWithLM('/var/lib/deepspeech/models/lm.binary', '/var/lib/deepspeech/models/trie', LM_WEIGHT,
-                       VALID_WORD_COUNT_WEIGHT)
+    sys.exit('No DeepSpeech Model found, please download one!')
+
 
 def load_keys(keylist):
     with open(keylist) as f:

@@ -25,7 +25,7 @@ pip install ffmpeg-python flask deepspeech uuid requests scipy
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.0/deepspeech-0.6.0-models.tar.gz | tar xvfz -
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz | tar xvfz -
 ```
 
 Now, lets take this for a test spin!
@@ -39,7 +39,9 @@ Next, you'll probably want to install something to serve it with, rather than th
 `gunicorn` is what I use:
 
 ```
-apt install gunicorn3 python3-pip git ffmpeg wget
+apt update && apt install gunicorn3 python3-pip git ffmpeg wget 
+mkdir /var/lib/deepspeech/ && cd /var/lib/deepspeech/
+wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz | tar xvfz -
 pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
 ```
 
