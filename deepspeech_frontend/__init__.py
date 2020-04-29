@@ -8,25 +8,6 @@ import scipy.io.wavfile as wav
 from flask import Flask, flash, request, redirect, url_for, send_from_directory, make_response, jsonify
 from werkzeug.utils import secure_filename
 
-# These constants control the beam search decoder
-
-# Beam width used in the CTC decoder when building candidate transcriptions
-BEAM_WIDTH = 500
-
-# Alpha hyperparameter of the CTC decoder. Language Model weight (aka LM_Alpha)
-LM_WEIGHT = 0.75
-
-# Valid word insertion weight. This is used to lessen the word insertion penalty
-# when the inserted word is part of the vocabulary (aka LM_Beta)
-VALID_WORD_COUNT_WEIGHT = 1.85
-
-# These constants are tied to the shape of the graph used (changing them changes
-# the geometry of the first layer), so make sure you use the same constants that
-# were used during training
-
-
-
-
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'flac'])
 
@@ -37,13 +18,13 @@ api_keyfile = 'api_keys.txt'
 transcription_in_progress = False
 print(transcription_in_progress)
 
-if os.path.isfile("models/output_graph.pb"):
+if os.path.isfile("models/deepspeech-0.7.0-models.pbmm"):
     print("Starting the DeepSpeech Frontend")
-    deepspeech_frontend.app.run(debug=True, host="::")
-elif os.path.isfile("/var/lib/deepspeech/models/output_graph.pb"):
-    ds = Model('/var/lib/deepspeech/models/output_graph.pb', BEAM_WIDTH)
-    ds.enableDecoderWithLM('/var/lib/deepspeech/models/lm.binary', '/var/lib/deepspeech/models/trie', LM_WEIGHT,
-                       VALID_WORD_COUNT_WEIGHT)
+    ds = Model('models/deepspeech-0.7.0-models.pbmm')
+    ds.enableExternalScorer('models/deepspeech-0.7.0-models.scorer')
+elif os.path.isfile("/var/lib/deepspeech/models/deepspeech-0.7.0-models.pbmm"):
+    ds = Model('/var/lib/deepspeech/models/deepspeech-0.7.0-models.pbmm')
+    ds.enableExternalScorer('/var/lib/deepspeech/models/deepspeech-0.7.0-models.scorer')
 else:
     sys.exit('No DeepSpeech Model found, please download one!')
 

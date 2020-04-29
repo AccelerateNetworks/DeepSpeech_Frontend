@@ -1,6 +1,6 @@
 # DeepSpeech Frontend
 
-A simple flask app that transcribes files served to it via HTTP POST, and redirects the user to the text we were able to get from their audio.
+A flask app that transcribes files served to it via HTTP POST, and redirects the user to the text we were able to get from their audio.
 
 ## Installation
 Install the dependencies, for Debian that would look like this:
@@ -20,12 +20,12 @@ python3 /usr/lib/python3/dist-packages/virtualenv.py -p python3 env
 Followed by installing the python packages needed:
 
 ```
-pip install ffmpeg-python flask deepspeech uuid requests scipy
+pip install -r requirements.txt
 ```
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz | tar xvfz -
+mkdir models && cd models && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.scorer
 ```
 
 Now, lets take this for a test spin!
@@ -40,9 +40,10 @@ Next, you'll probably want to install something to serve it with, rather than th
 
 ```
 apt update && apt install gunicorn3 python3-pip git ffmpeg wget 
-mkdir /var/lib/deepspeech/ && cd /var/lib/deepspeech/
-wget -O - https://github.com/mozilla/DeepSpeech/releases/download/v0.6.1/deepspeech-0.6.1-models.tar.gz | tar xvfz -
-ln -s deepspeech-0.6.1-models models && pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
+mkdir /var/lib/deepspeech/ && /var/lib/deepspeech/models && cd /var/lib/deepspeech/models
+wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.scorer
+pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
+pip3 install -r requirements.txt
 ```
 
 Finally, run gunicorn to start the server:
@@ -56,17 +57,9 @@ You may want this running as a daemon and probably managed by your init system, 
 to your liking.
 
 ## Configuration
-Configuration is done in the beginning of `deepspeech_frontend/__init__.py`. You can modify the directory where uploaded and not yet fully processed files are temporarily stored, change the language model and weights used and more.
+Configuration is done in the beginning of `deepspeech_frontend/__init__.py`. You can modify the directory where uploaded and not yet fully processed files are temporarily stored, change the language model and more.
 
 Adding an api_keys.txt to the base directory will restrict the API to authenticated users with valid API keys. The file format is simple with `<API_Key>, anything you want` on each line. To use a key, the API expects to be accessed with something equivalent to `curl -X POST <server>/api/v1/process -H 'Authorization: Bearer <api_key>' -F file=@<your_audio_file>`.
-
-## Optimizations
-Heavy, continuous talkers can cause the vad (which looks for pauses in speech) to fail, breaking chunking of large audio files into smaller files and causing DeepSpeech to attempt to transcribe larger files than it can handle. This results in a segfault by DeepSpeech when it maxes out your ram :P
-
-Based on our testing, a box with 3GB of Ram is the bare minimum needed to run DeepSpeech, though more is recommended. If you have spare hardware resources, edit the configuration in `deepspeech_frontend/__init__.py` on line 36, changing `models/output_graph.pbmm` to `models/output_graph.pb` to reference the normal voice model rather than the mmap-able model. This should reduce how much your system swaps or hits disk (as the model will be loaded into ram), but note that it seems to eat ram for breakfast!
-
-When using an mmap-able model (now the default), we saw memory usage reduced significantly, and according to [lissyx in this thread](https://discourse.mozilla.org/t/error-while-running-sample-model-on-raspbian-gnu-linux-9-4-stretch/28599/4) it should make DeepSpeech able to run on Single Board Computers like the OrangePi PC or Raspberry Pi.
-
 
 ## References Used
 Thanks to the following people and resources, this project exists:
