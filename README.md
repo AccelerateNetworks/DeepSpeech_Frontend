@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 At this point, Mozilla's DeepSpeech needs a language model:
 ```
-mkdir models && cd models && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.scorer
+mkdir models && cd models && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.3/deepspeech-0.7.3-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.3/deepspeech-0.7.3-models.scorer
 ```
 
 Now, lets take this for a test spin!
@@ -41,7 +41,7 @@ Next, you'll probably want to install something to serve it with, rather than th
 ```
 apt update && apt install gunicorn3 python3-pip git ffmpeg wget 
 mkdir /var/lib/deepspeech/ && /var/lib/deepspeech/models && cd /var/lib/deepspeech/models
-wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.0/deepspeech-0.7.0-models.scorer
+wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.3/deepspeech-0.7.3-models.pbmm && wget https://github.com/mozilla/DeepSpeech/releases/download/v0.7.3/deepspeech-0.7.3-models.scorer
 pip3 install git+https://git.callpipe.com/fusionpbx/deepspeech_frontend.git
 pip3 install -r requirements.txt
 ```
