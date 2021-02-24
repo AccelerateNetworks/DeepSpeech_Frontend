@@ -18,13 +18,13 @@ api_keyfile = 'api_keys.txt'
 transcription_in_progress = False
 print(transcription_in_progress)
 
-if os.path.isfile("models/deepspeech-0.7.0-models.pbmm"):
+if os.path.isfile("models/deepspeech-0.9.3-models.pbmm"):
     print("Starting the DeepSpeech Frontend")
-    ds = Model('models/deepspeech-0.7.0-models.pbmm')
-    ds.enableExternalScorer('models/deepspeech-0.7.0-models.scorer')
-elif os.path.isfile("/var/lib/deepspeech/models/deepspeech-0.7.0-models.pbmm"):
-    ds = Model('/var/lib/deepspeech/models/deepspeech-0.7.0-models.pbmm')
-    ds.enableExternalScorer('/var/lib/deepspeech/models/deepspeech-0.7.0-models.scorer')
+    ds = Model('models/deepspeech-0.9.3-models.pbmm')
+    ds.enableExternalScorer('models/deepspeech-0.9.3-models.scorer')
+elif os.path.isfile("/var/lib/deepspeech/models/deepspeech-0.9.3-models.pbmm"):
+    ds = Model('/var/lib/deepspeech/models/deepspeech-0.9.3-models.pbmm')
+    ds.enableExternalScorer('/var/lib/deepspeech/models/deepspeech-0.9.3-models.scorer')
 else:
     sys.exit('No DeepSpeech Model found, please download one!')
 

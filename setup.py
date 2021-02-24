@@ -2,7 +2,7 @@
 from distutils.core import setup
 
 setup(name='deepspeech-frontend',
-      version="0.7.0",
+      version="0.9.3",
       description='Recieves API calls and returns text.',
       author='Dan Ryan',
       author_email='dan@acceleratenetworks.com',
